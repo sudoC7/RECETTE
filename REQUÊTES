@@ -89,8 +89,10 @@ WHERE condition
 
 12- Afficher le nombre de recettes par catégories : X entrées, Y plats, Z desserts
 
-COUNT 
-GROUP BY 
+SELECT CATEGORIE.NomCategorie, COUNT(RECETTE.id_recette) AS Nombre_Recettes
+FROM CATEGORIE 
+LEFT JOIN RECETTE ON CATEGORIE.id_categorie = RECETTE.id_categorie
+GROUP BY CATEGORIE.id_categorie;
 
 
 13- Afficher les recettes qui contiennent l’ingrédient « Poulet »
@@ -139,15 +141,34 @@ JOIN INGREDIENTS ON INGREDIENTS.id_ingredients = PREPARATION.id_ingredients
 
 18- Trouver les ingrédients qui sont utilisés dans au moins 3 recettes
 
-
+SELECT INGREDIENTS.NomIngredient 
+FROM INGREDIENTS 
+INNER JOIN PREPARATION ON INGREDIENTS.id_ingredients = PREPARATION.id_ingredients 
+GROUP BY INGREDIENTS.id_ingredients 
+HAVING COUNT(DISTINCT PREPARATION.id_recette) >= 3;
 
 
 19- Ajouter un nouvel ingrédient à une recette spécifique
 
-
+INSERT INTO PREPARATION (id_recette, id_ingredients, quantite) VALUES (7, 10, 112);
 
 
 20- Bonus : Trouver la recette la plus coûteuse de la base de données (il peut y avoir des ex aequo, il est
 donc exclu d’utiliser la clause LIMIT)
 
-
+SELECT RECETTE.Nom AS Nom_Recette,
+       RECETTE.TempPreparation AS Temps_Preparation,
+       RECETTE.Instructions AS Instructions_Recette,
+       RECETTE.id_categorie AS ID_Categorie,
+       MAX(INGREDIENTS.Prix) AS Prix_Recette
+FROM RECETTE 
+JOIN PREPARATION ON RECETTE.id_recette = PREPARATION.id_recette
+JOIN INGREDIENTS ON PREPARATION.id_ingredients = INGREDIENTS.id_ingredients
+GROUP BY RECETTE.id_recette
+HAVING MAX(INGREDIENTS.Prix) = (
+    SELECT MAX(Prix)
+    FROM (
+        SELECT MAX(INGREDIENTS.Prix) AS Prix
+        FROM INGREDIENTS 
+        JOIN PREPARATION ON INGREDIENTS.id_ingredients = PREPARATION.id_ingredients
+        GROUP BY PREPARATION.id_recette
