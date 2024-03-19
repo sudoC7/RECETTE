@@ -9,8 +9,12 @@ ORDER BY TempPreparation DESC;
 
 2- En modifiant la requête précédente, faites apparaître le nombre d’ingrédients nécessaire par recette.
 
-
-
+SELECT RECETTE.Nom, RECETTE.Instructions, RECETTE.TempPreparation, INGREDIENTS.NomIngredient 
+FROM RECETTE 
+JOIN PREPARATION 
+ON RECETTE.id_recette = PREPARATION.id_recette 
+JOIN INGREDIENTS 
+ON INGREDIENTS.id_ingredients = PREPARATION.id_ingredients;
 
 
 3- Afficher les recettes qui nécessitent au moins 30 min de préparation
@@ -56,10 +60,20 @@ WHERE id_recette = 2;
 
 8- Afficher le prix total de la recette n°5
 
+SELECT RECETTE.id_recette, RECETTE.Nom, RECETTE.Instructions, RECETTE.TempPreparation, INGREDIENTS.Prix 
+FROM RECETTE 
+JOIN PREPARATION ON RECETTE.id_recette = PREPARATION.id_recette 
+JOIN INGREDIENTS ON INGREDIENTS.id_ingredients = PREPARATION.id_ingredients 
+WHERE RECETTE.id_recette = 5;
 
 
 9- Afficher le détail de la recette n°5 (liste des ingrédients, quantités et prix)
 
+SELECT RECETTE.id_recette, RECETTE.Nom, INGREDIENTS.NomIngredient ,PREPARATION.quantite ,INGREDIENTS.Prix 
+FROM RECETTE 
+JOIN PREPARATION ON RECETTE.id_recette = PREPARATION.id_recette 
+JOIN INGREDIENTS ON INGREDIENTS.id_ingredients = PREPARATION.id_ingredients 
+WHERE RECETTE.id_recette = 5;
 
 
 10- Ajouter un ingrédient en base de données : Poivre, unité : cuillère à café, prix : 2.5 €
@@ -75,34 +89,61 @@ WHERE condition
 
 12- Afficher le nombre de recettes par catégories : X entrées, Y plats, Z desserts
 
+COUNT 
+GROUP BY 
 
 
 13- Afficher les recettes qui contiennent l’ingrédient « Poulet »
 
+SELECT RECETTE.Nom, INGREDIENTS.NomIngredient, INGREDIENTS.Prix 
+FROM RECETTE 
+JOIN PREPARATION ON RECETTE.id_recette = PREPARATION.id_recette 
+JOIN INGREDIENTS ON INGREDIENTS.id_ingredients = PREPARATION.id_ingredients 
+WHERE LOWER(INGREDIENTS.NomIngredient) LIKE "%Poulet%"; 
 
 
 14- Mettez à jour toutes les recettes en diminuant leur temps de préparation de 5 minutes
 
+UPDATE RECETTE
+SET TempPreparation = TempPreparation - 5
 
 
 15- Afficher les recettes qui ne nécessitent pas d’ingrédients coûtant plus de 2€ par unité de mesure
 
+SELECT RECETTE.id_recette, RECETTE.Nom, INGREDIENTS.Prix 
+FROM RECETTE 
+JOIN PREPARATION ON RECETTE.id_recette = PREPARATION.id_recette 
+JOIN INGREDIENTS ON INGREDIENTS.id_ingredients = PREPARATION.id_ingredients 
+WHERE INGREDIENTS.Prix <= 2;
 
 
 16- Afficher la / les recette(s) les plus rapides à préparer
 
+SELECT * 
+FROM RECETTE 
+WHERE TempPreparation <= 10;
 
 
 17- Trouver les recettes qui ne nécessitent aucun ingrédient (par exemple la recette de la tasse d’eau
 chaude qui consiste à verser de l’eau chaude dans une tasse)
 
+SELECT RECETTE.Nom 
+FROM RECETTE 
+WHERE RECETTE.id_recette NOT IN(
+SELECT RECETTE.id_recette
+FROM RECETTE 
+JOIN PREPARATION ON RECETTE.id_recette = PREPARATION.id_recette 
+JOIN INGREDIENTS ON INGREDIENTS.id_ingredients = PREPARATION.id_ingredients
+);
 
 
 18- Trouver les ingrédients qui sont utilisés dans au moins 3 recettes
 
 
 
+
 19- Ajouter un nouvel ingrédient à une recette spécifique
+
 
 
 
