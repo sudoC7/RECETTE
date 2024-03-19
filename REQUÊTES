@@ -69,7 +69,9 @@ INSERT INTO INGREDIENTS (NomIngredient, UniteMesure, Prix) VALUES ('Poivre', 'cu
 
 11- Modifier le prix de l’ingrédient n°12 (prix à votre convenance)
 
-
+UPDATE table
+SET nom_colonne_1 = 'nouvelle valeur'
+WHERE condition
 
 12- Afficher le nombre de recettes par catégories : X entrées, Y plats, Z desserts
 
