@@ -159,51 +159,15 @@ INSERT INTO PREPARATION (id_recette, id_ingredients, quantite) VALUES (7, 10, 11
 20- Bonus : Trouver la recette la plus coûteuse de la base de données (il peut y avoir des ex aequo, il est
 donc exclu d’utiliser la clause LIMIT)
 
-SELECT Nom, TempPreparation, MAX(INGREDIENTS.Prix) AS Prix_Recette
-FROM RECETTE 
-JOIN PREPARATION ON RECCETTE.id_recette = PREPARATION.id_recette
-JOIN INGREDIENTS  ON PREPARATION.id_ingredients = INGREDIENTS.id_ingredients
-GROUP BY RECETTE.id_recette
-HAVING MAX(INGREDIENTS.Prix) = (
-    SELECT MAX(Prix)
-    FROM (
-        SELECT MAX(INGREDIENTS.Prix) AS Prix
-        FROM INGREDIENTS 
-        JOIN PREPARATION ON INGREDIENTS.id_ingredients = PREPARATION.id_ingredients
-        GROUP BY PREPARATION.id_recette
-    ) AS Prix_Max
-);
-
-
-
-
-SELECT Nom, TempPreparation, SUM(INGREDIENTS.Prix * PREPARATION.quantite) AS Prix_Recette
-FROM RECETTE 
-INNER JOIN PREPARATION ON RECETTE.id_recette = PREPARATION.id_recette
-INNER JOIN INGREDIENTS ON PREPARATION.id_ingredients = INGREDIENTS.id_ingredients
-GROUP BY RECETTE.id_recette 
-ORDER BY Prix_Recette DESC LIMIT 1;
-
-
-
-
 SELECT Nom, TempPreparation, SUM(INGREDIENTS.Prix * PREPARATION.quantite) AS Prix_Recette
 FROM RECETTE 
 INNER JOIN PREPARATION ON RECETTE.id_recette = PREPARATION.id_recette
 INNER JOIN INGREDIENTS  ON PREPARATION.id_ingredients = INGREDIENTS.id_ingredients
-WHERE Prix_Recette > ALL ( 
-    SELECT MAX(Prix_Recette) AS Prix_Recette1
-    FROM RECETTE  
-    INNER JOIN PREPARATION ON RECETTE.id_recette = PREPARATION.id_recette
-	INNER JOIN INGREDIENTS ON PREPARATION.id_ingredients = INGREDIENTS.id_ingredients
-    )   
-GROUP BY Nom;
-
-
-
-
-
-
-
-
-
+GROUP BY RECETTE.id_recette
+HAVING Prix_Recette >= ALL ( 
+            SELECT SUM(INGREDIENTS.Prix * PREPARATION.quantite) AS Prix_Recette
+        FROM RECETTE 
+        INNER JOIN PREPARATION ON RECETTE.id_recette = PREPARATION.id_recette
+        INNER JOIN INGREDIENTS  ON PREPARATION.id_ingredients = INGREDIENTS.id_ingredients
+        GROUP BY RECETTE.id_recette
+    );
