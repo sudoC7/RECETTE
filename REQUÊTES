@@ -101,7 +101,7 @@ SELECT RECETTE.Nom, INGREDIENTS.NomIngredient, INGREDIENTS.Prix
 FROM RECETTE 
 JOIN PREPARATION ON RECETTE.id_recette = PREPARATION.id_recette 
 JOIN INGREDIENTS ON INGREDIENTS.id_ingredients = PREPARATION.id_ingredients 
-WHERE LOWER(INGREDIENTS.NomIngredient) LIKE "%Poulet%"; 
+WHERE LOWER(INGREDIENTS.NomIngredient) LIKE "%poulet%"; 
 
 
 14- Mettez à jour toutes les recettes en diminuant leur temps de préparation de 5 minutes
@@ -121,9 +121,12 @@ WHERE INGREDIENTS.Prix <= 2;
 
 16- Afficher la / les recette(s) les plus rapides à préparer
 
-SELECT * 
+SELECT Nom, TempPreparation
 FROM RECETTE 
-WHERE TempPreparation <= 10;
+WHERE RECETTE.TempPreparation = (
+    SELECT MIN(TempPreparation)
+    FROM RECETTE
+);
 
 
 17- Trouver les recettes qui ne nécessitent aucun ingrédient (par exemple la recette de la tasse d’eau
@@ -141,11 +144,11 @@ JOIN INGREDIENTS ON INGREDIENTS.id_ingredients = PREPARATION.id_ingredients
 
 18- Trouver les ingrédients qui sont utilisés dans au moins 3 recettes
 
-SELECT INGREDIENTS.NomIngredient 
+SELECT INGREDIENTS.NomIngredient, COUNT(DISTINCT PREPARATION.id_recette) >= 3 AS NB_recette
 FROM INGREDIENTS 
 INNER JOIN PREPARATION ON INGREDIENTS.id_ingredients = PREPARATION.id_ingredients 
 GROUP BY INGREDIENTS.id_ingredients 
-HAVING COUNT(DISTINCT PREPARATION.id_recette) >= 3;
+HAVING NB_recette;
 
 
 19- Ajouter un nouvel ingrédient à une recette spécifique
@@ -156,14 +159,10 @@ INSERT INTO PREPARATION (id_recette, id_ingredients, quantite) VALUES (7, 10, 11
 20- Bonus : Trouver la recette la plus coûteuse de la base de données (il peut y avoir des ex aequo, il est
 donc exclu d’utiliser la clause LIMIT)
 
-SELECT RECETTE.Nom AS Nom_Recette,
-       RECETTE.TempPreparation AS Temps_Preparation,
-       RECETTE.Instructions AS Instructions_Recette,
-       RECETTE.id_categorie AS ID_Categorie,
-       MAX(INGREDIENTS.Prix) AS Prix_Recette
+SELECT Nom, TempPreparation, MAX(INGREDIENTS.Prix) AS Prix_Recette
 FROM RECETTE 
-JOIN PREPARATION ON RECETTE.id_recette = PREPARATION.id_recette
-JOIN INGREDIENTS ON PREPARATION.id_ingredients = INGREDIENTS.id_ingredients
+JOIN PREPARATION ON RECCETTE.id_recette = PREPARATION.id_recette
+JOIN INGREDIENTS  ON PREPARATION.id_ingredients = INGREDIENTS.id_ingredients
 GROUP BY RECETTE.id_recette
 HAVING MAX(INGREDIENTS.Prix) = (
     SELECT MAX(Prix)
@@ -172,3 +171,39 @@ HAVING MAX(INGREDIENTS.Prix) = (
         FROM INGREDIENTS 
         JOIN PREPARATION ON INGREDIENTS.id_ingredients = PREPARATION.id_ingredients
         GROUP BY PREPARATION.id_recette
+    ) AS Prix_Max
+);
+
+
+
+
+SELECT Nom, TempPreparation, SUM(INGREDIENTS.Prix * PREPARATION.quantite) AS Prix_Recette
+FROM RECETTE 
+INNER JOIN PREPARATION ON RECETTE.id_recette = PREPARATION.id_recette
+INNER JOIN INGREDIENTS ON PREPARATION.id_ingredients = INGREDIENTS.id_ingredients
+GROUP BY RECETTE.id_recette 
+ORDER BY Prix_Recette DESC LIMIT 1;
+
+
+
+
+SELECT Nom, TempPreparation, SUM(INGREDIENTS.Prix * PREPARATION.quantite) AS Prix_Recette
+FROM RECETTE 
+INNER JOIN PREPARATION ON RECETTE.id_recette = PREPARATION.id_recette
+INNER JOIN INGREDIENTS  ON PREPARATION.id_ingredients = INGREDIENTS.id_ingredients
+WHERE Prix_Recette > ALL ( 
+    SELECT MAX(Prix_Recette) AS Prix_Recette1
+    FROM RECETTE  
+    INNER JOIN PREPARATION ON RECETTE.id_recette = PREPARATION.id_recette
+	INNER JOIN INGREDIENTS ON PREPARATION.id_ingredients = INGREDIENTS.id_ingredients
+    )   
+GROUP BY Nom;
+
+
+
+
+
+
+
+
+
