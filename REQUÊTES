@@ -171,3 +171,13 @@ HAVING Prix_Recette >= ALL (
         INNER JOIN INGREDIENTS  ON PREPARATION.id_ingredients = INGREDIENTS.id_ingredients
         GROUP BY RECETTE.id_recette
     );
+
+21- Afficher la liste des recettes (nom de la recette + temps de préparation)  
+classées de la recette la plus coûteuse à la moins coûteuse
+
+SELECT Nom, TempPreparation, SUM(INGREDIENTS.Prix * PREPARATION.quantite) AS Prix_Recette
+        FROM RECETTE 
+        INNER JOIN PREPARATION ON RECETTE.id_recette = PREPARATION.id_recette
+        INNER JOIN INGREDIENTS  ON PREPARATION.id_ingredients = INGREDIENTS.id_ingredients
+        GROUP BY RECETTE.id_recette
+        ORDER BY Prix_Recette DESC
